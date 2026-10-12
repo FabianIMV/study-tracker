@@ -1,6 +1,6 @@
 /*!
  * study-tracker-view — pantalla de progreso lista para usar con study-tracker.
- * Sin dependencias. Expone window.StudyTrackerView. Licencia MIT.
+ * Sin dependencias. Funciona como <script> (window.StudyTrackerView) y con require(). Licencia MIT.
  *
  *   StudyTrackerView.render(contenedor, tracker, {
  *     topics: [{ id: '1', label: 'Fundamentos', total: 60 }, ...],
@@ -238,7 +238,7 @@
         document.body.appendChild(a); a.click(); a.remove();
         setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
       }
-      if (b.dataset.act === 'clear' && root.confirm(T.confirmClear)) tracker.clear();
+      if (b.dataset.act === 'clear' && window.confirm(T.confirmClear)) tracker.clear();
     }
     function onChange(ev) {
       var input = ev.target;
@@ -284,5 +284,7 @@
     };
   }
 
-  root.StudyTrackerView = { render: render, texts: TEXTS };
+  var api = { render: render, texts: TEXTS };
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.StudyTrackerView = api;
 })(typeof self !== 'undefined' ? self : this);
