@@ -1,0 +1,104 @@
+/* study-tracker-view — estilos. Personaliza los colores redefiniendo las
+   variables --st-* en tu app (por ejemplo en :root). Licencia MIT. */
+.st-root{
+  --st-surface:var(--st-surface-custom,#ffffff);
+  --st-text:var(--st-text-custom,#1f2430);
+  --st-muted:var(--st-muted-custom,#5f6677);
+  --st-line:var(--st-line-custom,#dfe3ec);
+  --st-grid:var(--st-grid-custom,#e9ecf2);
+  --st-accent:var(--st-accent-custom,#2a78d6);
+  --st-good:#0ca30c;
+  --st-bad:#d03b3b;
+  --st-warn-bg:#fef7e0;
+  position:relative;color:var(--st-text)
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])) .st-root{
+    --st-surface:var(--st-surface-custom,#1d212c);
+    --st-text:var(--st-text-custom,#e6e8ee);
+    --st-muted:var(--st-muted-custom,#a3abbd);
+    --st-line:var(--st-line-custom,#2e3442);
+    --st-grid:var(--st-grid-custom,#272c38);
+    --st-accent:var(--st-accent-custom,#3987e5);
+    --st-warn-bg:#332d17;
+  }
+}
+:root[data-theme="dark"] .st-root{
+  --st-surface:var(--st-surface-custom,#1d212c);
+  --st-text:var(--st-text-custom,#e6e8ee);
+  --st-muted:var(--st-muted-custom,#a3abbd);
+  --st-line:var(--st-line-custom,#2e3442);
+  --st-grid:var(--st-grid-custom,#272c38);
+  --st-accent:var(--st-accent-custom,#3987e5);
+  --st-warn-bg:#332d17;
+}
+.st-root h2{margin:0;font-size:1.25rem}
+.st-root h3{margin:0 0 .4rem;font-size:1.02rem}
+.st-root button{font:inherit;cursor:pointer;border:1px solid var(--st-line);background:var(--st-surface);color:var(--st-text);border-radius:8px;padding:.45rem .9rem}
+.st-root button:disabled{cursor:default}
+.st-muted{color:var(--st-muted);font-size:.86rem}
+.st-head{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.st-toggle{display:inline-flex;border:1px solid var(--st-line);border-radius:9px;overflow:hidden}
+.st-toggle button{border:0;border-radius:0;padding:.4rem 1rem}
+.st-toggle button[aria-pressed="true"]{background:var(--st-accent);color:#fff}
+.st-warn{background:var(--st-warn-bg);padding:.6rem .85rem;border-radius:8px;font-size:.9rem}
+.st-card{background:var(--st-surface);border:1px solid var(--st-line);border-radius:12px;padding:1rem 1.1rem;margin:0 0 1rem}
+.st-empty{text-align:center;color:var(--st-muted)}
+
+/* Indicadores */
+.st-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.7rem;margin-bottom:1rem}
+.st-tile{background:var(--st-surface);border:1px solid var(--st-line);border-radius:12px;padding:.8rem 1rem}
+.st-tile-k{font-size:.8rem;color:var(--st-muted)}
+.st-tile-k[title]{text-decoration:underline dotted;text-underline-offset:3px;cursor:help}
+.st-tile-v{font-size:1.9rem;font-weight:700;line-height:1.2;margin:.15rem 0 .25rem}
+.st-tile-v small{font-size:1rem;font-weight:500;color:var(--st-muted)}
+.st-delta{font-size:.86rem;font-weight:600;white-space:nowrap}
+.st-arrow{margin-right:.2rem;font-size:.75em}
+.st-up{color:var(--st-good)} .st-down{color:var(--st-bad)}
+
+/* Tabla por tema */
+.st-scroll{overflow-x:auto}
+.st-table{width:100%;border-collapse:collapse;font-size:.9rem}
+.st-table th,.st-table td{padding:.5rem .5rem;border-bottom:1px solid var(--st-line);text-align:left;white-space:nowrap}
+.st-table th{font-size:.76rem;color:var(--st-muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.st-table td:first-child{white-space:normal;min-width:9rem}
+.st-bar{display:flex;align-items:center;gap:.5rem;min-width:9rem}
+.st-bar-track{flex:1;height:8px;background:var(--st-grid);border-radius:4px;overflow:hidden}
+.st-bar-fill{height:100%;background:var(--st-accent);border-radius:0 4px 4px 0}
+
+/* Tendencia: un gráfico pequeño por tema, misma escala 0–100 */
+.st-multiples{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.6rem 1rem}
+.st-figure{margin:0}
+.st-figure figcaption{font-size:.86rem;font-weight:600;margin-bottom:.1rem}
+.st-chart{width:100%;height:auto;display:block;overflow:visible}
+.st-grid{stroke:var(--st-grid);stroke-width:1}
+.st-axis{fill:var(--st-muted);font-size:11px}
+.st-line{fill:none;stroke:var(--st-accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.st-dot{fill:var(--st-accent);stroke:var(--st-surface);stroke-width:2}
+.st-dot-live{fill:var(--st-surface);stroke:var(--st-accent)}
+.st-hit{fill:transparent;cursor:pointer;outline:none}
+.st-hit:focus-visible{stroke:var(--st-accent);stroke-width:1.5}
+.st-tip{position:absolute;z-index:10;pointer-events:none;background:var(--st-text);color:var(--st-surface);font-size:.8rem;padding:.35rem .55rem;border-radius:6px;max-width:260px}
+.st-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Historial */
+.st-session{border-top:1px solid var(--st-line)}
+.st-session:first-of-type{border-top:0}
+.st-root .st-session-h{display:grid;grid-template-columns:1fr auto auto;grid-template-areas:"date badge pct" "n badge pct";gap:0 .8rem;align-items:center;width:100%;text-align:left;border:0;border-radius:0;padding:.65rem .2rem;background:none}
+.st-session-date{grid-area:date;font-weight:600;font-size:.92rem}
+.st-session-n{grid-area:n;font-size:.84rem;color:var(--st-muted)}
+.st-badge{grid-area:badge;font-size:.75rem;border:1px solid var(--st-line);border-radius:999px;padding:.1rem .55rem;color:var(--st-muted)}
+.st-session-pct{grid-area:pct;font-weight:700;min-width:3.5rem;text-align:right}
+.st-answers{margin:0 0 .8rem;padding-left:1.3rem;font-size:.9rem}
+.st-answers li{margin:.6rem 0}
+.st-answers p{margin:.15rem 0}
+.st-q{font-weight:500}
+.st-ok .st-mark{color:var(--st-good)} .st-ko .st-mark{color:var(--st-bad)}
+.st-ko p + p .st-mark{color:var(--st-good)}
+
+/* Datos */
+.st-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.6rem}
+.st-file{display:inline-block;border:1px solid var(--st-line);border-radius:8px;padding:.45rem .9rem;cursor:pointer}
+.st-file input{position:absolute;width:1px;height:1px;opacity:0}
+.st-file:focus-within{outline:2px solid var(--st-accent)}
+.st-root .st-danger{color:var(--st-bad)}
