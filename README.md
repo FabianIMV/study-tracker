@@ -79,8 +79,7 @@ Loaded with `<script>`, the library exposes `window.StudyTracker` and `window.St
       { id: 'networking', label: 'Networking', total: 40 },
       { id: 'storage', label: 'Storage', total: 35 }
     ],
-    locale: 'en',
-    texts: { title: 'Your progress' } // see "Translating the view" below
+    getQuestion: function (id) { /* optional: to review each past session */ }
   });
 </script>
 ```
@@ -165,25 +164,55 @@ Renders the progress screen. Returns `{ refresh, destroy }`; call `destroy()` be
 | `topics` | `[{ id, label, total }]`, in display order. |
 | `getQuestion(id)` | Optional. Returns `{ text, options, correct }` to show the details of each past session. |
 | `period` | `'week'` (default) or `'month'`. |
-| `locale` | Locale for dates. Defaults to `'es'`. |
+| `locale` | Locale for dates. Defaults to `'en'`. |
 | `texts` | Overrides any string in `StudyTrackerView.texts`. |
 | `fileName` | File name used when exporting. |
 
 #### Translating the view
 
-The built-in strings are in Spanish. Pass `locale` and override the strings you need through
-`texts`; the full list of keys is in `StudyTrackerView.texts`:
+The built-in strings are in English. Pass `locale` (used to format dates) and override
+any string through `texts`; the full list of keys is in `StudyTrackerView.texts`.
+Keys you leave out keep their English default. Error messages thrown by the library
+are always in English.
+
+Spanish example:
 
 ```js
+var ES = {
+  title: 'Tu progreso',
+  week: 'Semana', month: 'Mes',
+  thisWeek: 'esta semana', thisMonth: 'este mes',
+  prevWeek: 'la semana anterior', prevMonth: 'el mes anterior',
+  empty: 'Aún no hay respuestas guardadas. Haz una prueba y tu avance aparecerá aquí.',
+  notPersistent: 'Este navegador no permite guardar datos (por ejemplo, en modo privado). Tu progreso se perderá al cerrar la página.',
+  mastery: 'Dominio estimado',
+  masteryHelp: 'De las preguntas que has visto, cuántas acertaste la última vez que las respondiste.',
+  accuracy: 'Acierto',
+  seen: 'Preguntas vistas',
+  answered: 'Respondidas',
+  noChange: 'sin cambios',
+  noPrev: 'sin datos previos',
+  byTopic: 'Por tema',
+  topic: 'Tema', change: 'Cambio', seenShort: 'Vistas',
+  trend: 'Acierto por', overall: 'General',
+  history: 'Historial de pruebas',
+  completed: 'Completada', stopped: 'Terminada antes', open: 'Sin cerrar',
+  of: 'de', answeredOf: 'respondidas',
+  yourAnswer: 'Tu respuesta', correctAnswer: 'Correcta',
+  data: 'Tus datos',
+  dataHelp: 'Todo se guarda solo en este navegador. Exporta una copia para no perderla o para pasarla a otro dispositivo.',
+  exportBtn: 'Exportar copia', importBtn: 'Importar copia', clearBtn: 'Borrar todo',
+  confirmClear: '¿Borrar todo tu historial? No se puede deshacer.',
+  imported: 'Importadas {n} respuestas nuevas.',
+  importError: 'No se pudo importar: ',
+  pts: 'pts', points: 'respuestas', weekOf: 'Semana del', inProgress: 'en curso',
+  liveNote: 'El punto hueco es el periodo en curso: aún puede cambiar.'
+};
+
 StudyTrackerView.render(el, tracker, {
-  locale: 'en',
-  texts: {
-    title: 'Your progress', week: 'Week', month: 'Month',
-    thisWeek: 'this week', thisMonth: 'this month',
-    prevWeek: 'last week', prevMonth: 'last month',
-    mastery: 'Estimated mastery', accuracy: 'Accuracy'
-    // …
-  }
+  locale: 'es',
+  texts: ES,
+  fileName: 'mi-progreso.json'
 });
 ```
 

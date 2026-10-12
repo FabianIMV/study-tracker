@@ -17,5 +17,5 @@ test('import y require devuelven la misma librería', () => {
 test('la vista se puede cargar con require', () => {
   const view = require('@fabianimv/study-tracker/view');
   assert.equal(typeof view.render, 'function');
-  assert.equal(typeof view.texts.title, 'string');
+  assert.equal(view.texts.title, 'Your progress');
 });

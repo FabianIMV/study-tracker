@@ -67,7 +67,7 @@
     if (period === 'day') return startOfDay(ms);
     if (period === 'week') return startOfWeek(ms);
     if (period === 'month') return startOfMonth(ms);
-    throw new Error('study-tracker: periodo desconocido "' + period + '" (usa day, week o month)');
+    throw new Error('study-tracker: unknown period "' + period + '" (use day, week or month)');
   }
   function nextPeriodStart(period, start) {
     var d = new Date(start);
@@ -154,7 +154,7 @@
   function create(opts) {
     opts = opts || {};
     if (!opts.appId || !/^[\w.-]+$/.test(opts.appId)) {
-      throw new Error('study-tracker: appId es obligatorio (letras, números, punto, guion o guion bajo)');
+      throw new Error('study-tracker: appId is required (letters, digits, dot, hyphen or underscore)');
     }
     var appId = opts.appId;
     var key = 'study-tracker:' + appId;
@@ -222,9 +222,9 @@
        * answer: { question, topic, correct, response? }
        */
       recordAnswer: function (sessionId, answer) {
-        if (!answer || answer.question == null) throw new Error('study-tracker: falta answer.question');
+        if (!answer || answer.question == null) throw new Error('study-tracker: answer.question is required');
         update(function () {
-          if (!findSession(sessionId)) throw new Error('study-tracker: sesión desconocida ' + sessionId);
+          if (!findSession(sessionId)) throw new Error('study-tracker: unknown session ' + sessionId);
           data.answers.push({
             session: sessionId,
             question: String(answer.question),
@@ -358,10 +358,10 @@
       importData: function (input, mode) {
         var incoming = typeof input === 'string' ? JSON.parse(input) : input;
         if (!incoming || !Array.isArray(incoming.sessions) || !Array.isArray(incoming.answers)) {
-          throw new Error('study-tracker: el archivo no tiene el formato esperado');
+          throw new Error('study-tracker: the file does not have the expected format');
         }
         if (incoming.appId && incoming.appId !== appId) {
-          throw new Error('study-tracker: el archivo es de otra app (' + incoming.appId + ')');
+          throw new Error('study-tracker: the file belongs to another app (' + incoming.appId + ')');
         }
         incoming = migrate(JSON.parse(JSON.stringify(incoming)), appId);
         return update(function () {

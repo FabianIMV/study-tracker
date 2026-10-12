@@ -16,7 +16,8 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - Stats: `periodStats`, `mastery`, `progress`, `questionStats`, `getSessions`, `getAnswers`.
 - `exportData` / `importData` (merge or replace) with a versioned data format (`schema: 1`).
 - `StudyTrackerView.render`: ready-made progress screen with weekly/monthly charts,
-  per-topic table, session history and export/import buttons.
+  per-topic table, session history and export/import buttons. English strings by
+  default; every string can be replaced through `texts` (e.g. Spanish) and dates follow `locale`.
 - ESM entry point (`import StudyTracker from '@fabianimv/study-tracker'`) and
   CommonJS/UMD builds usable from a `<script>` tag or a CDN.
 

@@ -3,43 +3,43 @@
  * Sin dependencias. Funciona como <script> (window.StudyTrackerView) y con require(). Licencia MIT.
  *
  *   StudyTrackerView.render(contenedor, tracker, {
- *     topics: [{ id: '1', label: 'Fundamentos', total: 60 }, ...],
- *     getQuestion: function (id) { return { text, options: [...], correct: [índices] }; }, // opcional
- *     fileName: 'mi-progreso.json'                                                        // opcional
+ *     topics: [{ id: '1', label: 'Basics', total: 60 }, ...],
+ *     getQuestion: function (id) { return { text, options: [...], correct: [indexes] }; }, // opcional
+ *     fileName: 'my-progress.json'                                                         // opcional
  *   });
  */
 (function (root) {
   'use strict';
 
   var TEXTS = {
-    title: 'Tu progreso',
-    week: 'Semana', month: 'Mes',
-    thisWeek: 'esta semana', thisMonth: 'este mes',
-    prevWeek: 'la semana anterior', prevMonth: 'el mes anterior',
-    empty: 'Aún no hay respuestas guardadas. Haz una prueba y tu avance aparecerá aquí.',
-    notPersistent: 'Este navegador no permite guardar datos (por ejemplo, en modo privado). Tu progreso se perderá al cerrar la página.',
-    mastery: 'Dominio estimado',
-    masteryHelp: 'De las preguntas que has visto, cuántas acertaste la última vez que las respondiste.',
-    accuracy: 'Acierto',
-    seen: 'Preguntas vistas',
-    answered: 'Respondidas',
-    noChange: 'sin cambios',
-    noPrev: 'sin datos previos',
-    byTopic: 'Por tema',
-    topic: 'Tema', change: 'Cambio', seenShort: 'Vistas',
-    trend: 'Acierto por', overall: 'General',
-    history: 'Historial de pruebas',
-    completed: 'Completada', stopped: 'Terminada antes', open: 'Sin cerrar',
-    of: 'de', answeredOf: 'respondidas',
-    yourAnswer: 'Tu respuesta', correctAnswer: 'Correcta',
-    data: 'Tus datos',
-    dataHelp: 'Todo se guarda solo en este navegador. Exporta una copia para no perderla o para pasarla a otro dispositivo.',
-    exportBtn: 'Exportar copia', importBtn: 'Importar copia', clearBtn: 'Borrar todo',
-    confirmClear: '¿Borrar todo tu historial? No se puede deshacer.',
-    imported: 'Importadas {n} respuestas nuevas.',
-    importError: 'No se pudo importar: ',
-    pts: 'pts', points: 'respuestas', weekOf: 'Semana del', inProgress: 'en curso',
-    liveNote: 'El punto hueco es el periodo en curso: aún puede cambiar.'
+    title: 'Your progress',
+    week: 'Week', month: 'Month',
+    thisWeek: 'this week', thisMonth: 'this month',
+    prevWeek: 'last week', prevMonth: 'last month',
+    empty: 'No answers saved yet. Take a quiz and your progress will show up here.',
+    notPersistent: 'This browser cannot save data (for example, in private mode). Your progress will be lost when you close the page.',
+    mastery: 'Estimated mastery',
+    masteryHelp: 'Of the questions you have seen, how many you got right the last time you answered them.',
+    accuracy: 'Accuracy',
+    seen: 'Questions seen',
+    answered: 'Answered',
+    noChange: 'no change',
+    noPrev: 'no previous data',
+    byTopic: 'By topic',
+    topic: 'Topic', change: 'Change', seenShort: 'Seen',
+    trend: 'Accuracy by', overall: 'Overall',
+    history: 'Session history',
+    completed: 'Completed', stopped: 'Stopped early', open: 'Not finished',
+    of: 'of', answeredOf: 'answered',
+    yourAnswer: 'Your answer', correctAnswer: 'Correct',
+    data: 'Your data',
+    dataHelp: 'Everything is stored only in this browser. Export a copy so you don\'t lose it or to move it to another device.',
+    exportBtn: 'Export copy', importBtn: 'Import copy', clearBtn: 'Delete all',
+    confirmClear: 'Delete your whole history? This cannot be undone.',
+    imported: 'Imported {n} new answers.',
+    importError: 'Could not import: ',
+    pts: 'pts', points: 'answers', weekOf: 'Week of', inProgress: 'in progress',
+    liveNote: 'The hollow dot is the current period: it can still change.'
   };
 
   function esc(s) {
@@ -52,7 +52,7 @@
   function render(container, tracker, opts) {
     opts = opts || {};
     var T = Object.assign({}, TEXTS, opts.texts || {});
-    var locale = opts.locale || 'es';
+    var locale = opts.locale || 'en';
     var topics = (opts.topics || []).map(function (t) { return { id: String(t.id), label: t.label || String(t.id), total: t.total }; });
     var totals = {};
     topics.forEach(function (t) { if (t.total != null) totals[t.id] = t.total; });
@@ -234,7 +234,7 @@
         var blob = new Blob([JSON.stringify(tracker.exportData(), null, 2)], { type: 'application/json' });
         var a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = opts.fileName || ('progreso-' + tracker.appId + '-' + new Date().toISOString().slice(0, 10) + '.json');
+        a.download = opts.fileName || ('progress-' + tracker.appId + '-' + new Date().toISOString().slice(0, 10) + '.json');
         document.body.appendChild(a); a.click(); a.remove();
         setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
       }

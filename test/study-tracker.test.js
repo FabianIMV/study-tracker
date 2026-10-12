@@ -139,8 +139,8 @@ test('exportar e importar sin duplicar', () => {
   assert.equal(other.importData(dump), 1);
   assert.equal(other.importData(dump), 0);
   assert.equal(other.getSessions().length, 1);
-  assert.throws(() => StudyTracker.create({ appId: 'otra', storage: StudyTracker.memoryStorage() }).importData(dump), /otra app/);
-  assert.throws(() => other.importData('{"foo":1}'), /formato/);
+  assert.throws(() => StudyTracker.create({ appId: 'otra', storage: StudyTracker.memoryStorage() }).importData(dump), /another app/);
+  assert.throws(() => other.importData('{"foo":1}'), /expected format/);
 });
 
 test('datos corruptos no rompen la app', () => {
