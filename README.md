@@ -1,141 +1,284 @@
 # study-tracker
 
-Guarda en el navegador cada respuesta de una app de estudio y muestra cuánto has
-mejorado por semana, por mes y por tema.
+[![npm version](https://img.shields.io/npm/v/@fabianimv/study-tracker.svg)](https://www.npmjs.com/package/@fabianimv/study-tracker)
+[![CI](https://github.com/FabianIMV/study-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/FabianIMV/study-tracker/actions/workflows/ci.yml)
+[![license: MIT](https://img.shields.io/npm/l/@fabianimv/study-tracker.svg)](LICENSE)
 
-- **Sin dependencias, sin build, sin servidor.** Tres archivos que se cargan con `<script>` y `<link>`.
-- **No pierde nada.** Cada respuesta se guarda en el momento en que se responde. Da igual si terminas la prueba, la dejas a medias o cierras la pestaña.
-- **Independiente del contenido.** No sabe nada de GCP ni de AWS: solo recibe un id de pregunta, un tema y si acertaste.
-- **Varias apps en el mismo dominio.** Cada app usa su propio `appId`, así que varias apps publicadas en `tuusuario.github.io` no se mezclan.
-- **Los datos son tuyos.** Puedes exportarlos e importarlos en JSON para hacer respaldos o pasarlos a otro dispositivo.
+Stores every answer from a quiz, flashcard or study app in the browser and shows
+how much the learner has improved per week, per month and per topic.
 
-## Uso rápido
+- **Zero dependencies, no build step, no server.** Three files you can load with `<script>` and `<link>`.
+- **Nothing gets lost.** Each answer is saved the moment it is recorded, whether the
+  learner finishes the session, stops halfway or closes the tab. Two open tabs don't overwrite each other.
+- **Content-agnostic.** The library only needs a question id, a topic and whether the answer was correct.
+- **Several apps on one domain.** Each app uses its own `appId`, so apps hosted on the same
+  origin (for example `username.github.io`) keep their data separate.
+- **Users own their data.** Progress can be exported and imported as JSON for backups or to move to another device.
+- **Ready-made progress view** (optional): stat tiles, per-topic table, weekly/monthly charts,
+  session history and export/import buttons. Light and dark mode.
+
+## Installation
+
+### npm
+
+```bash
+npm install @fabianimv/study-tracker
+```
+
+```js
+// ES modules / bundlers
+import StudyTracker from '@fabianimv/study-tracker';
+import StudyTrackerView from '@fabianimv/study-tracker/view'; // optional UI
+import '@fabianimv/study-tracker/style.css';                   // optional UI styles
+
+// CommonJS
+const StudyTracker = require('@fabianimv/study-tracker');
+```
+
+### CDN
+
+Always pin an exact version so an update never changes your app without you noticing.
 
 ```html
-<link rel="stylesheet" href="study-tracker.css">
-<script src="study-tracker.js"></script>
-<script src="study-tracker-view.js"></script>
-<script>
-  var tracker = StudyTracker.create({ appId: 'aws-saa-c03' });
+<!-- jsDelivr -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fabianimv/study-tracker@0.1.0/study-tracker.css">
+<script src="https://cdn.jsdelivr.net/npm/@fabianimv/study-tracker@0.1.0/study-tracker.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fabianimv/study-tracker@0.1.0/study-tracker-view.js"></script>
 
-  // Al empezar una prueba
+<!-- or unpkg -->
+<script src="https://unpkg.com/@fabianimv/study-tracker@0.1.0/study-tracker.js"></script>
+```
+
+Loaded with `<script>`, the library exposes `window.StudyTracker` and `window.StudyTrackerView`.
+
+## Quick start
+
+```html
+<div id="progress"></div>
+
+<script>
+  var tracker = StudyTracker.create({ appId: 'my-quiz' });
+
+  // When a session (quiz, practice round…) starts
   var session = tracker.startSession({ planned: 20 });
 
-  // Cada vez que el usuario responde (se guarda al instante)
+  // Every time the learner answers (saved immediately)
   tracker.recordAnswer(session, {
-    question: 'q-017',      // id estable de la pregunta
-    topic: 'networking',    // dominio o tema
+    question: 'q-017',      // stable question id
+    topic: 'networking',    // topic or domain
     correct: false,
-    response: [2]           // opcional: lo que eligió, para revisarlo después
+    response: [2]           // optional: what was picked, to review later
   });
 
-  // Al terminar (o al salir antes)
-  tracker.endSession(session, 'completed'); // o 'stopped'
+  // When the session ends (or the learner stops early)
+  tracker.endSession(session, 'completed'); // or 'stopped'
 
-  // Pantalla de progreso lista para usar
-  StudyTrackerView.render(document.getElementById('progreso'), tracker, {
+  // Optional ready-made progress screen
+  StudyTrackerView.render(document.getElementById('progress'), tracker, {
     topics: [
-      { id: 'networking', label: 'Redes', total: 40 },
-      { id: 'storage', label: 'Almacenamiento', total: 35 }
+      { id: 'networking', label: 'Networking', total: 40 },
+      { id: 'storage', label: 'Storage', total: 35 }
     ],
-    getQuestion: function (id) { /* opcional: para ver el detalle de cada prueba */ }
+    getQuestion: function (id) { /* optional: to review each past session */ }
   });
 </script>
 ```
 
-También funciona con `require('./study-tracker.js')` en Node (por ejemplo, en tests).
+## Isolating data between apps
 
-## Qué mide
+All data lives in `localStorage` under the key `study-tracker:<appId>`. `localStorage`
+is shared by every page on the same origin, so **give each app its own `appId`**:
 
-| Métrica | Qué significa |
+```js
+StudyTracker.create({ appId: 'spanish-vocab' });
+StudyTracker.create({ appId: 'chemistry-101' });
+```
+
+- Allowed characters: letters, digits, `.`, `-` and `_`.
+- Once an app is live, **don't change its `appId`**: learners would lose access to their
+  saved history (it stays under the old key).
+- `importData` refuses files exported from a different `appId`.
+
+## ⚠️ Keep question ids stable
+
+Progress is computed per question id. Once an app is published, **never change or
+reuse the id of an existing question**:
+
+- Renaming an id makes the question look brand new: its history is orphaned and
+  mastery/coverage drop.
+- Reusing an id for a different question mixes the history of two questions.
+
+Use ids that don't depend on order (for example `net-017` rather than the array index),
+fix typos in the question text freely, and give a new id only to genuinely new questions.
+The same applies to topic ids.
+
+## What it measures
+
+| Metric | Meaning |
 |---|---|
-| **Dominio estimado** | De las preguntas que has visto, el porcentaje que acertaste **la última vez** que las respondiste. Repetir una pregunta fácil no lo infla, y corregir un error sí lo sube. Su cambio en el periodo compara el valor de hoy con el que tenías al empezar la semana o el mes. |
-| **Acierto del periodo** | Porcentaje de respuestas correctas en la semana o el mes, comparado con el periodo anterior. |
-| **Preguntas vistas** | Cuántas preguntas distintas has respondido sobre el total del banco (cobertura). |
+| **Estimated mastery** | Of the questions seen, the share answered correctly **the last time** each was answered. Repeating an easy question doesn't inflate it; fixing a mistake raises it. Its change compares today's value with the value at the start of the week or month. |
+| **Period accuracy** | Share of correct answers in the week or month, compared with the previous period. |
+| **Questions seen** | How many distinct questions have been answered out of the whole bank (coverage). |
 
-Las semanas van de lunes a domingo, en la hora local del usuario.
+Weeks run Monday to Sunday in the learner's local time.
 
 ## API
 
 ### `StudyTracker.create({ appId, storage?, now? })`
 
-- `appId` (obligatorio): identificador de la app. Se guarda en `localStorage` con la clave `study-tracker:<appId>`.
-- `storage`: cualquier objeto con `getItem`, `setItem` y `removeItem`. Por defecto usa `localStorage` y, si no está disponible (modo privado), usa la memoria.
-- `now`: función que devuelve la hora actual en ms. Sirve para los tests.
+- `appId` (required): app identifier, see [Isolating data between apps](#isolating-data-between-apps).
+- `storage`: any object with `getItem`, `setItem` and `removeItem`. Defaults to `localStorage`,
+  falling back to memory when it is unavailable (e.g. some private modes).
+- `now`: function returning the current time in ms. Useful in tests.
 
-### Escribir
+### Writing
 
-| Método | Qué hace |
+| Method | What it does |
 |---|---|
-| `startSession({ planned?, meta? })` | Abre una sesión y devuelve su id. `meta` admite lo que quieras (filtros usados, modo…). |
-| `recordAnswer(sessionId, { question, topic, correct, response? })` | Guarda una respuesta al instante. |
-| `endSession(sessionId, reason?)` | Cierra la sesión (`'completed'`, `'stopped'` u otro texto). Una sesión sin cerrar conserva igualmente sus respuestas. |
-| `importData(jsonOObjeto, 'merge' \| 'replace')` | Importa un respaldo. `merge` no duplica respuestas. Devuelve cuántas añadió. |
-| `clear()` | Borra todos los datos de esta app. |
+| `startSession({ planned?, meta? })` | Opens a session and returns its id. `meta` accepts anything (filters used, mode…). |
+| `recordAnswer(sessionId, { question, topic, correct, response? })` | Saves an answer immediately. |
+| `endSession(sessionId, reason?)` | Closes the session (`'completed'`, `'stopped'` or any text). Unclosed sessions keep their answers. |
+| `importData(jsonOrObject, 'merge' \| 'replace')` | Imports a backup. `merge` (default) never duplicates answers. Returns how many answers were added. |
+| `clear()` | Deletes all data for this app. |
 
-### Leer
+### Reading
 
-| Método | Devuelve |
+| Method | Returns |
 |---|---|
-| `getSessions()` | Sesiones con al menos una respuesta, de la más reciente a la más antigua, con `answered`, `correct`, `pct` y `byTopic`. |
-| `getAnswers({ session?, topic?, question?, from?, to? })` | Respuestas filtradas. |
-| `periodStats('day' \| 'week' \| 'month', { limit? })` | Acierto por periodo, incluidos los periodos vacíos (`pct: null`) para que los huecos se vean. |
-| `mastery({ topics?, until? })` | Dominio estimado global y por tema. `topics` es `{ idTema: totalPreguntas }` para calcular la cobertura. |
-| `progress('week' \| 'month', { topics? })` | Todo lo necesario para responder “¿he mejorado?”: dominio y acierto actuales, y su cambio, global y por tema. |
-| `questionStats()` | Por pregunta: intentos, aciertos y si la última vez fue correcta. Sirve para armar pruebas con “solo las falladas” o “solo las nuevas”. |
-| `exportData()` | Copia completa de los datos. |
-| `onChange(fn)` | Llama a `fn` cada vez que cambian los datos, también desde otra pestaña. Devuelve una función para dejar de escuchar. |
-| `isPersistent()` | `false` si el navegador no permite guardar (los datos se perderán al cerrar). |
+| `getSessions()` | Sessions with at least one answer, newest first, with `answered`, `correct`, `pct` and `byTopic`. |
+| `getAnswers({ session?, topic?, question?, from?, to? })` | Filtered answers. |
+| `periodStats('day' \| 'week' \| 'month', { limit? })` | Accuracy per period, including empty periods (`pct: null`) so gaps are visible. |
+| `mastery({ topics?, until? })` | Estimated mastery overall and per topic. `topics` is `{ topicId: totalQuestions }` to compute coverage. |
+| `progress('week' \| 'month', { topics? })` | Everything needed to answer "am I improving?": current mastery and accuracy and their change, overall and per topic. |
+| `questionStats()` | Per question: attempts, correct count and whether the last attempt was correct. Handy for "only missed" or "only new" sessions. |
+| `exportData()` | Full copy of the data. |
+| `onChange(fn)` | Calls `fn` whenever the data changes, including from another tab. Returns an unsubscribe function. |
+| `isPersistent()` | `false` when the browser can't store data (it will be lost on close). |
 
-### `StudyTrackerView.render(contenedor, tracker, opciones)`
+### `StudyTrackerView.render(container, tracker, options)`
 
-Pinta la pantalla de progreso: indicadores, tabla por tema, un gráfico de acierto
-por tema (semana o mes), historial de pruebas y botones para exportar, importar y borrar.
-Devuelve `{ refresh, destroy }`. Llama a `destroy()` antes de reutilizar el contenedor.
+Renders the progress screen. Returns `{ refresh, destroy }`; call `destroy()` before reusing the container.
 
-| Opción | Uso |
+| Option | Use |
 |---|---|
-| `topics` | `[{ id, label, total }]`, en el orden en que quieres verlos. |
-| `getQuestion(id)` | Opcional. Devuelve `{ text, options, correct }` para mostrar el detalle de cada prueba del historial. |
-| `period` | `'week'` (por defecto) o `'month'`. |
-| `locale` | Idioma de las fechas. Por defecto `'es'`. |
-| `texts` | Sustituye cualquier texto de `StudyTrackerView.texts` (por ejemplo, para traducir la vista). |
-| `fileName` | Nombre del archivo al exportar. |
+| `topics` | `[{ id, label, total }]`, in display order. |
+| `getQuestion(id)` | Optional. Returns `{ text, options, correct }` to show the details of each past session. |
+| `period` | `'week'` (default) or `'month'`. |
+| `locale` | Locale for dates. Defaults to `'en'`. |
+| `texts` | Overrides any string in `StudyTrackerView.texts`. |
+| `fileName` | File name used when exporting. |
 
-Los colores se adaptan con variables CSS: `--st-surface-custom`, `--st-text-custom`,
-`--st-muted-custom`, `--st-line-custom`, `--st-grid-custom` y `--st-accent-custom`.
-Incluye modo oscuro.
+#### Translating the view
 
-## Formato de los datos
+The built-in strings are in English. Pass `locale` (used to format dates) and override
+any string through `texts`; the full list of keys is in `StudyTrackerView.texts`.
+Keys you leave out keep their English default. Error messages thrown by the library
+are always in English.
+
+Spanish example:
+
+```js
+var ES = {
+  title: 'Tu progreso',
+  week: 'Semana', month: 'Mes',
+  thisWeek: 'esta semana', thisMonth: 'este mes',
+  prevWeek: 'la semana anterior', prevMonth: 'el mes anterior',
+  empty: 'Aún no hay respuestas guardadas. Haz una prueba y tu avance aparecerá aquí.',
+  notPersistent: 'Este navegador no permite guardar datos (por ejemplo, en modo privado). Tu progreso se perderá al cerrar la página.',
+  mastery: 'Dominio estimado',
+  masteryHelp: 'De las preguntas que has visto, cuántas acertaste la última vez que las respondiste.',
+  accuracy: 'Acierto',
+  seen: 'Preguntas vistas',
+  answered: 'Respondidas',
+  noChange: 'sin cambios',
+  noPrev: 'sin datos previos',
+  byTopic: 'Por tema',
+  topic: 'Tema', change: 'Cambio', seenShort: 'Vistas',
+  trend: 'Acierto por', overall: 'General',
+  history: 'Historial de pruebas',
+  completed: 'Completada', stopped: 'Terminada antes', open: 'Sin cerrar',
+  of: 'de', answeredOf: 'respondidas',
+  yourAnswer: 'Tu respuesta', correctAnswer: 'Correcta',
+  data: 'Tus datos',
+  dataHelp: 'Todo se guarda solo en este navegador. Exporta una copia para no perderla o para pasarla a otro dispositivo.',
+  exportBtn: 'Exportar copia', importBtn: 'Importar copia', clearBtn: 'Borrar todo',
+  confirmClear: '¿Borrar todo tu historial? No se puede deshacer.',
+  imported: 'Importadas {n} respuestas nuevas.',
+  importError: 'No se pudo importar: ',
+  pts: 'pts', points: 'respuestas', weekOf: 'Semana del', inProgress: 'en curso',
+  liveNote: 'El punto hueco es el periodo en curso: aún puede cambiar.'
+};
+
+StudyTrackerView.render(el, tracker, {
+  locale: 'es',
+  texts: ES,
+  fileName: 'mi-progreso.json'
+});
+```
+
+Colors can be themed with CSS variables: `--st-surface-custom`, `--st-text-custom`,
+`--st-muted-custom`, `--st-line-custom`, `--st-grid-custom` and `--st-accent-custom`.
+
+## Data format
+
+The stored data (and the exported file) is plain, versioned JSON:
 
 ```json
 {
   "schema": 1,
-  "appId": "gcp-genai-leader",
+  "appId": "my-quiz",
   "sessions": [
     { "id": "m1x2…", "startedAt": 1760000000000, "endedAt": 1760000600000,
-      "reason": "completed", "planned": 20, "meta": { "domain": 0 } }
+      "reason": "completed", "planned": 20, "meta": { "mode": "practice" } }
   ],
   "answers": [
-    { "session": "m1x2…", "question": "d1-07", "topic": "1",
+    { "session": "m1x2…", "question": "net-007", "topic": "networking",
       "correct": true, "response": [0], "at": 1760000030000 }
   ]
 }
 ```
 
-`schema` permite migrar datos antiguos si el formato cambia: la función `migrate()`
-del código es el único lugar donde hay que hacerlo. Las respuestas se guardan como
-lista plana para que sea fácil analizarlas fuera (hoja de cálculo, pandas, etc.).
+- `schema` is the format version. If the format ever changes, the library migrates older
+  data automatically when it loads or imports it, so existing history keeps working
+  after an upgrade.
+- Answers are stored as a flat list so they are easy to analyze elsewhere (spreadsheets, pandas…).
+- Timestamps are milliseconds since the Unix epoch.
+- `localStorage` allows about 5 MB per origin. Each answer takes roughly 120 bytes, so
+  there is room for around 40,000 answers.
 
-`localStorage` admite unos 5 MB por dominio. Cada respuesta ocupa unos 120 bytes,
-así que caben del orden de 40.000 respuestas.
+## Export and import
 
-## Tests
+Everything stays in the learner's browser, so offer a way to back it up. The progress
+view already includes *Export*, *Import* and *Clear* buttons; to do it yourself:
 
-```bash
-npm test   # usa el runner integrado de Node 18+, sin instalar nada
+```js
+// Export: download a JSON backup
+var blob = new Blob([JSON.stringify(tracker.exportData(), null, 2)], { type: 'application/json' });
+var a = document.createElement('a');
+a.href = URL.createObjectURL(blob);
+a.download = 'my-quiz-progress.json';
+a.click();
+
+// Import: from an <input type="file">
+input.addEventListener('change', function () {
+  input.files[0].text().then(function (text) {
+    var added = tracker.importData(text, 'merge'); // or 'replace'
+    console.log(added + ' new answers imported');
+  });
+});
 ```
 
-## Licencia
+`merge` adds only the sessions and answers that are missing, so importing the same file
+twice is safe. `replace` discards the current data first.
 
-MIT. Ver [LICENSE](LICENSE).
+## Development
+
+```bash
+npm test   # uses Node's built-in test runner (Node 18+), nothing to install
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [CHANGELOG.md](CHANGELOG.md).
+
+## License
+
+[MIT](LICENSE) © Fabian Munoz

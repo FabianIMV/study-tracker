@@ -1,19 +1,60 @@
 {
   "name": "@fabianimv/study-tracker",
   "version": "0.1.0",
-  "description": "Guarda en el navegador las respuestas de una app de estudio y muestra el avance por semana, mes y tema. Sin dependencias.",
+  "description": "Zero-dependency browser library that stores study/quiz answers in localStorage and shows weekly, monthly and per-topic progress.",
+  "keywords": [
+    "study",
+    "quiz",
+    "flashcards",
+    "progress",
+    "tracker",
+    "localstorage",
+    "spaced-repetition",
+    "exam-prep",
+    "learning",
+    "zero-dependency"
+  ],
+  "homepage": "https://github.com/FabianIMV/study-tracker#readme",
+  "bugs": {
+    "url": "https://github.com/FabianIMV/study-tracker/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FabianIMV/study-tracker.git"
+  },
+  "license": "MIT",
+  "author": "Fabian Munoz",
   "main": "study-tracker.js",
+  "module": "index.mjs",
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "default": "./study-tracker.js"
+    },
+    "./view": "./study-tracker-view.js",
+    "./style.css": "./study-tracker.css",
+    "./study-tracker.js": "./study-tracker.js",
+    "./study-tracker-view.js": "./study-tracker-view.js",
+    "./study-tracker.css": "./study-tracker.css",
+    "./package.json": "./package.json"
+  },
+  "unpkg": "study-tracker.js",
+  "jsdelivr": "study-tracker.js",
+  "style": "study-tracker.css",
   "files": [
     "study-tracker.js",
     "study-tracker-view.js",
     "study-tracker.css",
-    "README.md",
-    "LICENSE"
+    "index.mjs",
+    "CHANGELOG.md"
   ],
   "scripts": {
-    "test": "node --test \"test/*.test.js\""
+    "test": "node --test"
   },
-  "keywords": ["study", "quiz", "progress", "localstorage", "exam-prep"],
-  "license": "MIT",
-  "engines": { "node": ">=18" }
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

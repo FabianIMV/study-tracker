@@ -50,8 +50,8 @@ test('dos pestañas abiertas no se pisan las respuestas', () => {
 
 test('separa los datos de cada app en el mismo navegador', () => {
   const storage = StudyTracker.memoryStorage();
-  const a = StudyTracker.create({ appId: 'gcp', storage });
-  const b = StudyTracker.create({ appId: 'aws', storage });
+  const a = StudyTracker.create({ appId: 'app-a', storage });
+  const b = StudyTracker.create({ appId: 'app-b', storage });
   a.recordAnswer(a.startSession(), { question: 'q1', topic: 1, correct: true });
   assert.equal(b.getSessions().length, 0);
 });
@@ -139,8 +139,8 @@ test('exportar e importar sin duplicar', () => {
   assert.equal(other.importData(dump), 1);
   assert.equal(other.importData(dump), 0);
   assert.equal(other.getSessions().length, 1);
-  assert.throws(() => StudyTracker.create({ appId: 'otra', storage: StudyTracker.memoryStorage() }).importData(dump), /otra app/);
-  assert.throws(() => other.importData('{"foo":1}'), /formato/);
+  assert.throws(() => StudyTracker.create({ appId: 'otra', storage: StudyTracker.memoryStorage() }).importData(dump), /another app/);
+  assert.throws(() => other.importData('{"foo":1}'), /expected format/);
 });
 
 test('datos corruptos no rompen la app', () => {
@@ -158,4 +158,8 @@ test('clear borra todo y avisa a los oyentes', () => {
   tr.clear();
   assert.equal(tr.getSessions().length, 0);
   assert.ok(calls >= 3);
+});
+
+test('la versión publicada coincide con package.json', () => {
+  assert.equal(StudyTracker.version, require('../package.json').version);
 });
