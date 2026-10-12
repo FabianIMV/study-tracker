@@ -136,7 +136,7 @@ Weeks run Monday to Sunday in the learner's local time.
 | Method | What it does |
 |---|---|
 | `startSession({ planned?, meta? })` | Opens a session and returns its id. `meta` accepts anything (filters used, mode…). |
-| `recordAnswer(sessionId, { question, topic, correct, response? })` | Saves an answer immediately. |
+| `recordAnswer(sessionId, { question, topic?, correct, response? })` | Saves an answer immediately. `topic` defaults to `''`. |
 | `endSession(sessionId, reason?)` | Closes the session (`'completed'`, `'stopped'` or any text). Unclosed sessions keep their answers. |
 | `importData(jsonOrObject, 'merge' \| 'replace')` | Imports a backup. `merge` (default) never duplicates answers. Returns how many answers were added. |
 | `clear()` | Deletes all data for this app. |
@@ -152,7 +152,7 @@ Weeks run Monday to Sunday in the learner's local time.
 | `progress('week' \| 'month', { topics? })` | Everything needed to answer "am I improving?": current mastery and accuracy and their change, overall and per topic. |
 | `questionStats()` | Per question: attempts, correct count and whether the last attempt was correct. Handy for "only missed" or "only new" sessions. |
 | `exportData()` | Full copy of the data. |
-| `onChange(fn)` | Calls `fn` whenever the data changes, including from another tab. Returns an unsubscribe function. |
+| `onChange(fn)` | Calls `fn` whenever the data changes, including from another tab when using the default `localStorage`. Returns an unsubscribe function. |
 | `isPersistent()` | `false` when the browser can't store data (it will be lost on close). |
 
 ### `StudyTrackerView.render(container, tracker, options)`
@@ -221,7 +221,7 @@ Colors can be themed with CSS variables: `--st-surface-custom`, `--st-text-custo
 
 ## Data format
 
-The stored data (and the exported file) is plain, versioned JSON:
+The stored data is plain, versioned JSON. Files from `exportData()` have the same shape plus an `exportedAt` timestamp:
 
 ```json
 {
